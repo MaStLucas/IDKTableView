@@ -23,9 +23,10 @@ class MasterViewController: UIViewController {
         let addButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(insertNewObject(_:)))
         let contentOffsetButton = UIBarButtonItem(title: "Offset", style: .plain, target: self, action: #selector(animateContentOffset(_:)))
         let contentInsetButton = UIBarButtonItem(title: "Inset", style: .plain, target: self, action: #selector(animateContentInset(_:)))
-        
+        let playButton = UIBarButtonItem.init(barButtonSystemItem: .play, target: self, action: #selector(play(_:)))
+        let stopButton = UIBarButtonItem.init(barButtonSystemItem: .stop, target: self, action: #selector(stop(_:)))
         let resetButton = UIBarButtonItem(barButtonSystemItem: .refresh, target: self, action: #selector(reset(_:)))
-        navigationItem.rightBarButtonItems = [addButton, contentInsetButton, contentOffsetButton, resetButton]
+        navigationItem.rightBarButtonItems = [addButton, contentInsetButton, contentOffsetButton, playButton, stopButton, resetButton]
         
         if let split = splitViewController {
             let controllers = split.viewControllers
@@ -36,6 +37,10 @@ class MasterViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
 //        clearsSelectionOnViewWillAppear = splitViewController!.isCollapsed
         super.viewWillAppear(animated)
+        
+        if let indexPath = tableView.indexPathForSelectedRow {
+            tableView.deselectRow(at: indexPath, animated: false)
+        }
     }
 
     @objc
@@ -56,12 +61,31 @@ class MasterViewController: UIViewController {
     }
     
     @objc
+    func play(_ sender: Any) {
+        UIView.animate(withDuration: 0.25) {
+            print("before", self.tableView.contentOffset)
+            self.tableView.contentInset = UIEdgeInsets.init(top: 56, left: 0, bottom: 0, right: 0)
+//            self.tableView.contentOffset = CGPoint.init(x: 0, y: -56)
+            print("after", self.tableView.contentOffset)
+            self.tableView.setContentOffset(CGPoint.init(x: 0, y: -56), animated: true)
+        }
+    }
+    
+    @objc
+    func stop(_ sender: Any) {
+        UIView.animate(withDuration: 0.25) {
+            self.tableView.contentInset = .zero
+        }
+    }
+    
+    @objc
     func reset(_ sender: Any) {
         tableView.contentInset = .zero
         tableView.contentOffset = .zero
         objects.removeAll()
         tableView.reloadData()
     }
+    
 
     // MARK: - Segues
 
